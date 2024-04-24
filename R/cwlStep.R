@@ -34,8 +34,30 @@ cwlStep <- function(id, run = cwlProcess(),
                     requirements = list(),
                     hints = list(),
                     when = character()) {
+
+    ## add defaults to In
+    ins <- names(inputs(run))
+    inL <- paste0(id, "_", ins)
+    names(inL) <- ins
+    if(length(In)>0){
+        inL[match(names(In), ins)] <- In
+    }
+    ## remove optional/default
+    df <- unlist(lapply(inputs(run),function(x){
+        grepl("\\?", x@type) | length(x@default)!=0}
+        ))
+    if(any(df)){
+        df <- setdiff(names(inL)[df], names(In))
+        if(length(df)>0){
+            inL <- inL[-match(df, names(inL))]
+        }
+    }
+    In <- inL
+
     if(is(run, "cwlProcess")){
-        stopifnot(names(In) %in% names(inputs(run)))
+        if(length(ins) > 0){
+            stopifnot(names(In) %in% names(inputs(run)))
+        }
         sout <- as.list(names(outputs(run)))
     }else if(is(run, "character")){
         stopifnot(file.exists(run))
@@ -70,3 +92,49 @@ cwlStep <- function(id, run = cwlProcess(),
         hints = hints,
         when = when)
 }
+
+
+#' stepInputs
+#' 
+#' @description prepare inputs for workflow from `cwlStep` objects
+#' @param stepList a list of `cwlStep` objects.
+#' @return InputParamList.
+#' @export
+stepInputs <- function(stepList){
+    ## keep unchanged inputs
+    ss <- lapply(stepList, function(s){
+        unlist(lapply(s@In, function(x)x@source))
+    })
+    ss <- unlist(ss)
+    ## update ids
+    ins <- do.call(c, lapply(stepList, function(x){
+        i1 <- inputs(x@run)
+        for(i in seq(i1)){
+            i1[[i]]@id <- paste0(x@id, "_", i1[[i]]@id)
+        }
+        names(i1) <- paste0(x@id, "_", names(i1))        
+        i1
+    }))
+    idx <- names(ins) %in% ss
+    return(ins[idx])
+}
+
+
+#' stepOutputs
+#' 
+#' @description prepare outputs for workflow from `cwlStep` objects
+#' @param stepList a list of `cwlStep` objects.
+#' @return OutputParamList.
+#' @export
+stepOutputs <- function(stepList){
+    os <- lapply(stepList, function(s1){
+        lapply(outputs(s1@run), sid = s1@id, function(x, sid){
+            OutputParam(id = paste0(sid, "_", x@id), type = x@type,
+                        outputSource = paste0(sid, "/", x@id))
+        })
+        
+    })
+    outs <- do.call(OutputParamList, unlist(os))
+    outs <- outs[-match("output", names(outs))]
+    return(outs)
+} 

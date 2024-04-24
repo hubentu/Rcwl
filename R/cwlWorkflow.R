@@ -54,12 +54,27 @@ cwlWorkflow <- function(cwlVersion = "v1.0", cwlClass = "Workflow",
 #' @param e2 A `cwlStep` object.
 #' @export
 
+## setMethod("+", c("cwlWorkflow", "cwlStep"), function(e1, e2) {
+##     ##if (length(e1@steps) == 0) {
+##     ##    e1@steps <- cwlStepList(e2)
+##     ##} else {
+##     e1@steps <- do.call(cwlStepList, c(e1@steps@listData, e2))
+##     ##}
+##     return(e1)
+## })
+
 setMethod("+", c("cwlWorkflow", "cwlStep"), function(e1, e2) {
-    ##if (length(e1@steps) == 0) {
-    ##    e1@steps <- cwlStepList(e2)
-    ##} else {
+    ## first empty one
+    if(length(inputs(e1))==0){
+        e1@inputs <- stepInputs(list(e2))
+        e1@outputs <- stepOutputs(list(e2))
+    ## if inputs are not pre-defined
+    }else if(!all(names(stepInputs(list(e2))) %in% names(inputs(e1)))){
+        e1@inputs <- stepInputs(c(e1@steps@listData, e2))
+        e1@outputs <- stepOutputs(c(e1@steps@listData, e2))
+    }
     e1@steps <- do.call(cwlStepList, c(e1@steps@listData, e2))
-    ##}
+
     return(e1)
 })
 
