@@ -44,8 +44,12 @@ cwlStep <- function(id, run = cwlProcess(),
     }
     ## remove optional/default
     df <- unlist(lapply(inputs(run),function(x){
-        grepl("\\?", x@type) | length(x@default)!=0}
-        ))
+        f1 <- FALSE
+        if(is(x@type, "character")){
+            f1 <- grepl("\\?", x@type)
+        }
+        f1 | length(x@default)!=0
+    }))
     if(any(df)){
         df <- setdiff(names(inL)[df], names(In))
         if(length(df)>0){

@@ -2,7 +2,7 @@
 #'
 #' An R package to wrap command line tools and build pipelines with
 #' Common Workflow Language (CWL).
-#' @docType package
+#' _PACKAGE
 #' @name Rcwl-package
 #' @rdname Rcwl-package
 #' @aliases Rcwl Rcwl,Rcwl-package

@@ -37,7 +37,7 @@
 #'                  inputs = InputParamList(input1))
 #' echo$sth <- "Hello World!"
 #' ## res <- runCWL(echo)
-runCWL <- function(cwl, cwlRunner = "cwltool", outdir = ".",
+runCWL <- function(cwl, outdir = ".", cwlRunner = "cwltool",
                    cachedir = NULL, cwlTemp = NULL, cwlArgs = character(),
                    stdout = TRUE, stderr = TRUE, showLog = FALSE,
                    docker = TRUE, conda = FALSE,
@@ -63,6 +63,9 @@ runCWL <- function(cwl, cwlRunner = "cwltool", outdir = ".",
         docker <- TRUE
     }else if(docker == "udocker"){
         cwlArgs <- paste("--user-space-docker-cmd=udocker", cwlArgs)
+        docker <- TRUE
+    }else if(docker == "podman"){
+        cwlArgs <- paste("--podman", cwlArgs)
         docker <- TRUE
     }
     if (!dir.exists(yml_outdir)) dir.create(yml_outdir)

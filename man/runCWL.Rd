@@ -6,8 +6,8 @@
 \usage{
 runCWL(
   cwl,
-  cwlRunner = "cwltool",
   outdir = ".",
+  cwlRunner = "cwltool",
   cachedir = NULL,
   cwlTemp = NULL,
   cwlArgs = character(),
@@ -24,11 +24,11 @@ runCWL(
 \arguments{
 \item{cwl}{A `cwlProcess` or `cwlWorkflow` object.}
 
-\item{cwlRunner}{The path to the `cwltool` or `cwl-runner`. If not
-exists, the cwltool package will be installed by `reticulate`.}
-
 \item{outdir}{Output directory, default is current working
 directory.}
+
+\item{cwlRunner}{The path to the `cwltool` or `cwl-runner`. If not
+exists, the cwltool package will be installed by `reticulate`.}
 
 \item{cachedir}{Directory to cache intermediate workflow outputs to
 avoid recomputing steps.}
